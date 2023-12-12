@@ -1154,6 +1154,14 @@ fn handle_request(
                 .map_err(|err| HttpError::from(err.description().to_string()))?;
             http_message(StatusCode::OK, txid.to_hex(), 0)
         }
+        (&Method::POST, Some(&"tx"), Some(&"noupdate"), None, None, None) => {
+            let txhex = String::from_utf8(body.to_vec())?;
+            // Only broadcast, do not update electrs mempool
+            let txid = query
+                .broadcast_raw_bitcoind(&txhex)
+                .map_err(|err| HttpError::from(err.description().to_string()))?;
+            http_message(StatusCode::OK, txid.to_hex(), 0)
+        }
         (&Method::GET, Some(&"txs"), Some(&"outspends"), None, None, None) => {
             let txid_strings: Vec<&str> = query_params
                 .get("txids")
