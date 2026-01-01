@@ -16,8 +16,6 @@ permissions:
 
 jobs:
   build:
-    runs-on: mempool-ci
-    timeout-minutes: 120
     name: Build and push to DockerHub
     steps:
       - name: Set env variables
@@ -56,13 +54,5 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx
 
-      - name: Run Docker buildx against tag
-        run: |
-          docker buildx build \
-          --cache-from "type=local,src=/tmp/.buildx-cache" \
-          --cache-to "type=local,dest=/tmp/.buildx-cache" \
-          --platform linux/amd64,linux/arm64 \
-          --tag ${{ secrets.DOCKER_HUB_USER }}/electrs:$TAG \
-          --tag ${{ secrets.DOCKER_HUB_USER }}/electrs:latest \
-          --output "type=registry" . \
-          --build-arg commitHash=$SHORT_SHA
+      - name: Display git status in Github Action logs
+        run: git status
